@@ -1,0 +1,111 @@
+import express from "express";
+import db from "../database/database.js";
+import bcrypt from "bcrypt";
+
+const authRoute = express.Router();
+
+//logic to register a user 
+authRoute.post("/register", (req, res) => {
+  const { username, email, password } = req.body;
+  if (!username || !email || !password)
+    return res.status(400).json("Missing required fields");
+
+  // Check if user exists
+  const checkEmailQ = "SELECT * FROM users WHERE email = ?";
+  db.query(checkEmailQ, [email], (error, data) => {
+    if (error) return res.status(500).json(error);
+    if (data.length > 0) return res.status(400).json("User already exists");
+
+    // Hash the password before storing it
+    bcrypt.hash(password, 10, (err, hashedPassword) => {
+      if (err) return res.status(500).json(err);
+
+      // Proceed to register user if they don't exist
+      const insertUser =
+        "INSERT INTO users (`username`, `email`, `password`) VALUES (?)";
+      const values = [username, email, hashedPassword];
+
+      db.query(insertUser, [values], (error, data) => {
+        if (error) return res.status(400).json(error);
+        return res.status(201).json({ message: "User created", data });
+      });
+    });
+  });
+});
+
+//logic to login
+authRoute.post("/login", (req, res) => {
+  const { email, password } = req.body;
+  if (!email || !password)
+    return res.status(400).json({ message: "User email and password required" });
+
+  // Check the login credentials
+  const selectLoginQ = "SELECT * FROM users WHERE email = ?";
+  db.query(selectLoginQ, [email], (error, data) => {
+    if (error) return res.status(500).json(error);
+    if (data.length === 0)
+      return res.status(401).json({ message: "Wrong user email and password", data });
+
+    // Compare the hashed password
+    bcrypt.compare(password, data[0].password, (err, result) => {
+      if (err) return res.status(500).json(err);
+      if (!result) return res.status(401).json({ message: "Wrong user email and password" });
+
+      return res.status(200).json({ message: "User logged in" });
+    });
+  });
+});
+
+export default authRoute;
+
+///
+app.get('/home',(req,res)=>{
+  const q = 'SELECT * FROM products'
+  db.query(q,(error,data)=>{
+      if(error) return res.status(400).json(error)
+  const BASE_URL = process.env.BASE_URL || 'http://localhost:3000';
+   //images
+  const updatedData = data.map((product)=>({
+  ...product,
+  image_url: `${BASE_URL}/${product.image_url}`
+}))
+  return res.status(200).json(updatedData)
+ 
+  })
+})
+///
+import React, { useEffect, useState } from 'react'
+import axois from 'axios'
+
+
+const Home = () => {
+    const [data,setData] = useState([])
+    useEffect(()=>{
+        const fetch = async ()=>{
+            try {
+                const results = await axois.get('http://localhost:3000/home')
+                console.log(results.data)
+                setData(results.data)
+            } catch (error) {
+                console.log(error)
+            }
+        }
+        fetch()
+    },[])
+  return (
+    <div>{data.map((prod)=>{
+        return(
+            <div key={prod.prod_id}>
+                <h1>{prod.product_name}</h1>
+                <p>${prod.price}</p>
+                <p>{prod.description}</p>
+                {<img src={prod.image_url} alt={prod.product_name} width="200" />
+            }
+                <button>Add to cart</button>
+            </div>
+        )
+    })}</div>
+  )
+}
+
+export default Home
