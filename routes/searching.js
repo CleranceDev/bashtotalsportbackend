@@ -14,7 +14,7 @@ searchRoute.post('/search',(req,res)=>{
         const BASE = 'http://localhost:3000/'
         updatedData = data.map((prod)=>({
             ...prod,
-            img:`${BASE}${prod.img}`
+            img:`${''}${prod.img}`
         }))
         return res.status(200).json(updatedData)
         

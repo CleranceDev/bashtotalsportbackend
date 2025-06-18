@@ -10,7 +10,7 @@ db.query(collectDataQuery,(error,data)=>{
     const Base = 'http://localhost:3000/'
     const updatedDATA = data.map((prod)=>({
         ...data,
-        img:`${Base}${prod.img}`
+        img:`${''}${prod.img}`
     }))
     return res.status(200).json(updatedDATA)
 })

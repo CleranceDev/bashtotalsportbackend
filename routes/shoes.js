@@ -9,7 +9,7 @@ shoes.get('/shoes',(req,res)=>{
         const BASE_URL = process.env.BASE_URL
         const updatedData = data.map((prod)=>({
             ...prod,
-            img:`${BASE_URL}${prod.img}`
+            img:`${''}${prod.img}`
         }))
         return res.status(200).json(updatedData)
     })
@@ -26,7 +26,7 @@ shoes.post('/shoes/search',(req,res)=>{
         const BASE_URL = process.env.BASE_URL
         const updatedData = data.map((prod)=>({
             ...prod,
-            img:`${BASE_URL}${prod.img}`
+            img:`${''}${prod.img}`
         }))
         return res.status(200).json(updatedData)
     })

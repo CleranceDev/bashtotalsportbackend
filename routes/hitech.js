@@ -9,7 +9,7 @@ hitech.get('/brand/hitec',(req,res)=>{
             const BASE_URL = 'http://localhost:3000/'
             const updatedData = data.map((dat)=>({
                 ...dat,
-                img:`${BASE_URL}${dat.img}`
+                img:`${''}${dat.img}`
             }))
         return res.status(200).json(updatedData)
     })
